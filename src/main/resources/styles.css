@@ -1,0 +1,112 @@
+/* Base styles */
+.root {
+    -fx-base: #f0f0f0;
+    -fx-background-color: #e8e8e8;
+    -fx-font-family: "Montserrat Medium";
+}
+
+/* Headers */
+.header-label {
+    -fx-font-family: "Montserrat Bold";
+    -fx-font-size: 16px;
+    -fx-text-fill: #333333;
+}
+
+/* Run button */
+.run-button {
+    -fx-font-family: "Montserrat Medium";
+    -fx-font-size: 14px;
+    -fx-padding: 5px 15px;
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 3, 0.0, 0, 1);
+}
+
+.run-button:hover {
+    -fx-background-color: #45a049;
+    -fx-cursor: hand;
+}
+
+.run-button:pressed {
+    -fx-background-color: #3d8b40;
+}
+
+/* Status label */
+.status-label {
+    -fx-font-family: "Montserrat Regular";
+    -fx-font-size: 14px;
+    -fx-text-fill: #333333;
+}
+
+/* Script area (input) */
+.script-area {
+    -fx-font-family: "Montserrat Regular";
+    -fx-font-size: 14px;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #4CAF50;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+}
+
+.script-area .text {
+    -fx-font-family: "Montserrat Regular";
+    -fx-font-size: 14px;
+}
+
+.script-area .paragraph-box {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.script-area .lineno {
+    -fx-background-color: #f5f5f5;
+    -fx-text-fill: #888888;
+    -fx-max-width: 40px;
+    -fx-min-width: 40px;
+    -fx-border-color: #dddddd;
+    -fx-border-width: 0 1px 0 0;
+    -fx-font-family: "Montserrat Regular";
+    -fx-font-size: 14px;
+}
+
+.current-paragraph-style {
+    -fx-background-color: #f3f8f3;
+}
+
+/* Output area (darker) */
+.output-area {
+    -fx-font-family: "Montserrat Regular";
+    -fx-font-size: 14px;
+    -fx-text-fill: #000000;
+    -fx-border-color: #4CAF50;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+}
+
+/* Split pane */
+.split-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.split-pane > .split-pane-divider {
+    -fx-background-color: transparent;
+    -fx-padding: 1px;
+}
+
+/* Scrollbars */
+.scroll-bar {
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 0;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #cccccc;
+    -fx-background-radius: 3px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #b8b8b8;
+}
