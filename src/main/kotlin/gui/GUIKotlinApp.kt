@@ -1,5 +1,6 @@
 package com.hlianole.guikotlin.gui
 
+import com.hlianole.guikotlin.run.ScriptRunner
 import javafx.application.Application
 import javafx.application.Platform
 import javafx.geometry.Insets
@@ -14,20 +15,20 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.text.Font
 import javafx.stage.Stage
-import java.util.concurrent.CompletableFuture
-import kotlin.io.path.createTempFile
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.LineNumberFactory
-import java.security.Key
 
 class GUIKotlinApp : Application()  {
     private lateinit var scriptArea : CodeArea
     private lateinit var outputArea: TextArea
     private lateinit var statusLabel : Label
     private lateinit var runButton : Button
+    private var scriptRunner = ScriptRunner
+    private var isScriptRunning = false
 
     override fun start(primaryStage: Stage) {
         Font.loadFont(javaClass.getResourceAsStream("/fonts/montserrat/Montserrat-Regular.ttf"), 14.0)
+        scriptRunner.preload()
 
         val root = VBox(10.0).apply {
             padding = Insets(15.0)
@@ -168,71 +169,15 @@ class GUIKotlinApp : Application()  {
     }
 
     private fun runScript() {
-        if (!isKotlinCompilerInstalled()) {
-            updateUI {
-                outputArea.text = "Error: Kotlin compiler not installed.\n" +
-                        "Please, install Kotlin Compiler and add it to PATH."
-                statusLabel.text = "Error"
-            }
-            return
-        }
-
-        val script = scriptArea.text
-        if (script.isBlank()) {
-            return
-        }
-
-        CompletableFuture.supplyAsync {
-            try {
-                val tempFile =  createTempFile("script", ".kts").toFile()
-                tempFile.writeText(script)
-
-                updateUI {
-                    statusLabel.text = "Running..."
-                    outputArea.clear()
-                }
-
-                val processBuilder = ProcessBuilder("kotlinc", "-script", tempFile.absolutePath)
-                processBuilder.redirectErrorStream(true)
-
-                val process = processBuilder.start()
-
-                val output = process.inputStream.bufferedReader().use {
-                    it.readText()
-                }
-
-                val exitCode = process.waitFor()
-
-                updateUI {
-                    statusLabel.text = "Exit code: $exitCode"
-                    outputArea.text = output
-                }
-
-                tempFile.delete()
-            }
-            catch (e: Exception) {
-                updateUI {
-                    statusLabel.text = "Error"
-                    outputArea.text = e.toString()
-                }
-            }
-        }
-    }
-
-    private fun isKotlinCompilerInstalled(): Boolean {
-        return try {
-            val command = if (System.getProperty("os.name").lowercase().contains("win")) {
-                "where kotlinc"
-            } else {
-                "which kotlinc"
-            }
-            val process = ProcessBuilder(command.split(" "))
-                .redirectErrorStream(true)
-                .start()
-            process.waitFor()
-            process.exitValue() == 0
-        } catch (e: Exception) {
-            false
+        if (!isScriptRunning) {
+            isScriptRunning = true
+            scriptRunner.run(
+                scriptArea = scriptArea,
+                outputArea = outputArea,
+                statusLabel = statusLabel,
+                updateUI = ::updateUI
+            )
+            isScriptRunning = false
         }
     }
 
@@ -249,7 +194,7 @@ class GUIKotlinApp : Application()  {
 
         scriptArea.setStyleSpans(0, scriptArea.length,
             org.fxmisc.richtext.model.StyleSpansBuilder<Collection<String>>()
-                .add(emptyList<String>(), scriptArea.length)
+                .add(emptyList(), scriptArea.length)
                 .create()
         )
 
