@@ -2,20 +2,20 @@
 .root {
     -fx-base: #f0f0f0;
     -fx-background-color: #e8e8e8;
-    -fx-font-family: "Montserrat Medium";
+    -fx-font-family: "Montserrat SemiBold";
 }
 
 /* Headers */
 .header-label {
-    -fx-font-family: "Montserrat Bold";
-    -fx-font-size: 16px;
+    -fx-font-family: "Montserrat Regular";
+    -fx-font-size: 18px;
     -fx-text-fill: #333333;
 }
 
 /* Run button */
 .run-button {
-    -fx-font-family: "Montserrat Medium";
-    -fx-font-size: 14px;
+    -fx-font-family: "Montserrat Regular";
+    -fx-font-size: 16px;
     -fx-padding: 5px 15px;
     -fx-background-color: #4CAF50;
     -fx-text-fill: white;
@@ -36,14 +36,14 @@
 /* Status label */
 .status-label {
     -fx-font-family: "Montserrat Regular";
-    -fx-font-size: 14px;
+    -fx-font-size: 16px;
     -fx-text-fill: #333333;
 }
 
 /* Script area (input) */
 .script-area {
-    -fx-font-family: "Montserrat Regular";
-    -fx-font-size: 14px;
+    -fx-font-family: "Montserrat SemiBold";
+    -fx-font-size: 16px;
     -fx-background-color: #ffffff;
     -fx-border-color: #4CAF50;
     -fx-border-width: 1px;
@@ -51,8 +51,8 @@
 }
 
 .script-area .text {
-    -fx-font-family: "Montserrat Regular";
-    -fx-font-size: 14px;
+    -fx-font-family: "Montserrat SemiBold";
+    -fx-font-size: 16px;
 }
 
 .script-area .paragraph-box {
@@ -67,8 +67,8 @@
     -fx-min-width: 40px;
     -fx-border-color: #dddddd;
     -fx-border-width: 0 1px 0 0;
-    -fx-font-family: "Montserrat Regular";
-    -fx-font-size: 14px;
+    -fx-font-family: "Montserrat SemiBold";
+    -fx-font-size: 16px;
 }
 
 .current-paragraph-style {
@@ -77,8 +77,8 @@
 
 /* Output area (darker) */
 .output-area {
-    -fx-font-family: "Montserrat Regular";
-    -fx-font-size: 14px;
+    -fx-font-family: "Montserrat SemiBold";
+    -fx-font-size: 16px;
     -fx-text-fill: #000000;
     -fx-border-color: #4CAF50;
     -fx-border-width: 1px;
@@ -109,4 +109,43 @@
 
 .scroll-bar .thumb:hover {
     -fx-background-color: #b8b8b8;
+}
+
+.cache-button {
+    -fx-font-family: "Montserrat Regular";
+    -fx-font-size: 16px;
+}
+
+.keyword1 {
+    -fx-font-family: "Montserrat SemiBold";
+    -fx-fill: #0022c5;
+}
+
+.keyword2 {
+    -fx-font-family: "Montserrat SemiBold";
+    -fx-fill: #7700a6;
+}
+
+.keyword3 {
+    -fx-font-family: "Montserrat SemiBold";
+    -fx-fill: #bc1212;
+}
+
+.operator {
+    -fx-font-family: "Montserrat SemiBold";
+    -fx-fill: #a67606;
+}
+
+.comment {
+    -fx-font-family: "Montserrat SemiBold";
+    -fx-fill: #7e7e7e;
+}
+
+.styled-text-area .comment {
+    -fx-font-family: "Montserrat SemiBold";
+    -fx-fill: #7e7e7e;
+}
+
+.string {
+    -fx-fill: #03800c;
 }

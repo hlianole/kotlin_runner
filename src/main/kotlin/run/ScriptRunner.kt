@@ -59,9 +59,6 @@ object ScriptRunner {
 
                 val processBuilder = ProcessBuilder(
                     "kotlinc",
-                    "-J-Xms256m",
-                    "-J-Xmx512m",
-                    "-J-XX:+UseParallelGC",
                     "-script",
                     scriptFile.absolutePath
                 )

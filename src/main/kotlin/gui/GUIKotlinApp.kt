@@ -24,12 +24,14 @@ class GUIKotlinApp : Application()  {
     private lateinit var statusLabel : Label
     private lateinit var runButton : Button
     private lateinit var cacheButton : RadioButton
+    private lateinit var keywordsHighlighter: KeywordsHighlighter
     private var isUsingCache = false
     private var scriptRunner = ScriptRunner
     private var isScriptRunning = false
 
     override fun start(primaryStage: Stage) {
-        Font.loadFont(javaClass.getResourceAsStream("/fonts/montserrat/Montserrat-Regular.ttf"), 14.0)
+        Font.loadFont(javaClass.getResourceAsStream("/fonts/montserrat/Montserrat-SemiBold.ttf"), 16.0)
+        Font.loadFont(javaClass.getResourceAsStream("/fonts/montserrat/Montserrat-Regular.ttf"), 16.0)
         scriptRunner.preload()
 
         val root = VBox(10.0).apply {
@@ -85,12 +87,18 @@ class GUIKotlinApp : Application()  {
                     highlightCurrentLine()
                 }
             }
+
+            addEventHandler(KeyEvent.KEY_TYPED) {
+                Platform.runLater {
+                    keywordsHighlighter.highlightKeywords()
+                }
+            }
         }
 
+        keywordsHighlighter = KeywordsHighlighter(scriptArea = scriptArea)
+
         outputArea = TextArea().apply {
-            isEditable = false
             styleClass.add("output-area")
-            isWrapText = true
             VBox.setVgrow(this, Priority.ALWAYS)
         }
 
@@ -106,8 +114,10 @@ class GUIKotlinApp : Application()  {
         }
 
         cacheButton = RadioButton("Use caching").apply {
+            styleClass.add("cache-button")
+            isSelected = isUsingCache
             setOnAction {
-                isUsingCache = !isUsingCache
+                isUsingCache = isSelected
             }
         }
 
