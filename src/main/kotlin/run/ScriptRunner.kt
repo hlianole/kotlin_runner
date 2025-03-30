@@ -14,6 +14,7 @@ object ScriptRunner {
         scriptArea: CodeArea,
         outputArea: TextArea,
         statusLabel: Label,
+        isUsingCache: Boolean,
         updateUI: (runnable: () -> Unit) -> Unit
     ) {
         checkKotlinCompiler(
@@ -28,15 +29,17 @@ object ScriptRunner {
         }
 
         val scriptHash = script.hashCode().toString(16)
-        synchronized(lock) {
-            cache[scriptHash]?.let { cached ->
-                if (cached.isNotEmpty()) {
-                    updateUI {
-                        statusLabel.text = "From cache"
-                        outputArea.clear()
-                        outputArea.text = cached
+        if (isUsingCache) {
+            synchronized(lock) {
+                cache[scriptHash]?.let { cached ->
+                    if (cached.isNotEmpty()) {
+                        updateUI {
+                            statusLabel.text = "From cache"
+                            outputArea.clear()
+                            outputArea.text = cached
+                        }
+                        return
                     }
-                    return
                 }
             }
         }

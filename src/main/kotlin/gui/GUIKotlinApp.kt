@@ -23,6 +23,8 @@ class GUIKotlinApp : Application()  {
     private lateinit var outputArea: TextArea
     private lateinit var statusLabel : Label
     private lateinit var runButton : Button
+    private lateinit var cacheButton : RadioButton
+    private var isUsingCache = false
     private var scriptRunner = ScriptRunner
     private var isScriptRunning = false
 
@@ -103,6 +105,12 @@ class GUIKotlinApp : Application()  {
             }
         }
 
+        cacheButton = RadioButton("Use caching").apply {
+            setOnAction {
+                isUsingCache = !isUsingCache
+            }
+        }
+
 
         scriptTopBar.children.addAll(
             Label("Kotlin script").apply {
@@ -117,7 +125,8 @@ class GUIKotlinApp : Application()  {
 
         outputTopBar.children.addAll(
             runButton,
-            statusLabel
+            statusLabel,
+            cacheButton
         )
 
         outputPanel.children.addAll(
@@ -175,6 +184,7 @@ class GUIKotlinApp : Application()  {
                 scriptArea = scriptArea,
                 outputArea = outputArea,
                 statusLabel = statusLabel,
+                isUsingCache = isUsingCache,
                 updateUI = ::updateUI
             )
             isScriptRunning = false
