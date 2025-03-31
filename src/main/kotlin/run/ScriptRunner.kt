@@ -6,9 +6,10 @@ import org.fxmisc.richtext.CodeArea
 import java.io.File
 import java.util.concurrent.CompletableFuture
 
-object ScriptRunner {
+class ScriptRunner {
     private var cache = mutableMapOf<String, String>()
     private var lock = Any()
+    private var currentProcess : Process? = null
 
     fun run(
         scriptArea: CodeArea,
@@ -17,6 +18,10 @@ object ScriptRunner {
         isUsingCache: Boolean,
         updateUI: (runnable: () -> Unit) -> Unit
     ) {
+        if (currentProcess != null) {
+            return
+        }
+
         checkKotlinCompiler(
             outputArea,
             statusLabel,
@@ -51,7 +56,7 @@ object ScriptRunner {
                 scriptFile.writeText(script)
 
                 updateUI {
-                    statusLabel.text = "Compiling..."
+                    statusLabel.text = "Running..."
                     outputArea.clear()
                 }
 
@@ -64,32 +69,32 @@ object ScriptRunner {
                 )
                 processBuilder.redirectErrorStream(true)
 
-                val process = processBuilder.start()
+                currentProcess = processBuilder.start()
+                println("Process started with PID: ${currentProcess?.pid()}")
 
                 val output = StringBuilder()
-                val reader = process.inputStream.bufferedReader()
+                val reader = currentProcess?.inputStream?.bufferedReader()
                 var line: String?
 
-                while (reader.readLine().also { line = it } != null) {
-                    updateUI {
-                        statusLabel.text = "Running..."
-                    }
+
+                while (reader?.readLine().also { line = it } != null) {
                     output.append(line).append('\n')
                     updateUI {
                         outputArea.text = output.toString()
                     }
                 }
 
-                updateUI {
-                    statusLabel.text = "Running..."
-                }
-
-                process.waitFor()
+                currentProcess?.waitFor()
                 val endTime = System.currentTimeMillis()
-                val exitCode = process.exitValue()
+                val exitCode = currentProcess?.exitValue()
+                currentProcess = null
                 val executionTime = endTime - startTime
                 updateUI {
-                    statusLabel.text = "Exit code: $exitCode (${millisecondsToSeconds(executionTime)})"
+                    if (exitCode != 137) {
+                        statusLabel.text = "Exit code: $exitCode (${millisecondsToSeconds(executionTime)})"
+                    } else {
+                        statusLabel.text = "Killed"
+                    }
                 }
                 if (exitCode == 0) {
                     synchronized(lock) {
@@ -103,6 +108,28 @@ object ScriptRunner {
                 }
             }
         }
+    }
+
+    fun stop(
+        statusLabel: Label,
+        updateUI: (runnable: () -> Unit) -> Unit
+    ) {
+        currentProcess?.let { process ->
+            if (process.isAlive) {
+                process.destroyForcibly()
+
+                try {
+                    process.waitFor()
+                } catch (e: InterruptedException) {
+                    Thread.currentThread().interrupt()
+                }
+
+                updateUI {
+                    statusLabel.text = "Killed"
+                }
+            }
+        }
+        currentProcess = null
     }
 
     fun preload() {

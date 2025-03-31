@@ -17,16 +17,18 @@ import javafx.scene.text.Font
 import javafx.stage.Stage
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.LineNumberFactory
+import java.util.concurrent.CompletableFuture
 
 class GUIKotlinApp : Application()  {
     private lateinit var scriptArea : CodeArea
     private lateinit var outputArea: TextArea
     private lateinit var statusLabel : Label
     private lateinit var runButton : Button
+    private lateinit var stopButton : Button
     private lateinit var cacheButton : RadioButton
     private lateinit var keywordsHighlighter: KeywordsHighlighter
     private var isUsingCache = false
-    private var scriptRunner = ScriptRunner
+    private var scriptRunner = ScriptRunner()
     private var isScriptRunning = false
 
     override fun start(primaryStage: Stage) {
@@ -100,6 +102,16 @@ class GUIKotlinApp : Application()  {
         outputArea = TextArea().apply {
             styleClass.add("output-area")
             VBox.setVgrow(this, Priority.ALWAYS)
+
+            addEventHandler(KeyEvent.KEY_PRESSED) { event ->
+                if (event.code == KeyCode.ENTER && isScriptRunning) {
+                    event.consume()
+                    Platform.runLater {
+                        text += '\n'
+                        positionCaret(length)
+                    }
+                }
+            }
         }
 
         statusLabel = Label("Ready").apply {
@@ -110,6 +122,13 @@ class GUIKotlinApp : Application()  {
             styleClass.add("run-button")
             setOnAction {
                 runScript()
+            }
+        }
+
+        stopButton = Button("Stop").apply {
+            styleClass.add("stop-button")
+            setOnAction {
+                stopScript()
             }
         }
 
@@ -135,6 +154,7 @@ class GUIKotlinApp : Application()  {
 
         outputTopBar.children.addAll(
             runButton,
+            stopButton,
             statusLabel,
             cacheButton
         )
@@ -170,7 +190,7 @@ class GUIKotlinApp : Application()  {
             splitPane
         )
 
-        val scene = Scene(root, 920.0, 720.0)
+        val scene = Scene(root, 1280.0, 720.0)
         val cssPath = javaClass.getResource("/styles.css")?.toExternalForm()
         if (cssPath != null) {
             scene.stylesheets.add(cssPath)
@@ -188,8 +208,7 @@ class GUIKotlinApp : Application()  {
     }
 
     private fun runScript() {
-        if (!isScriptRunning) {
-            isScriptRunning = true
+        CompletableFuture.supplyAsync {
             scriptRunner.run(
                 scriptArea = scriptArea,
                 outputArea = outputArea,
@@ -197,7 +216,15 @@ class GUIKotlinApp : Application()  {
                 isUsingCache = isUsingCache,
                 updateUI = ::updateUI
             )
-            isScriptRunning = false
+        }
+    }
+
+    private fun stopScript() {
+        Platform.runLater {
+            scriptRunner.stop(
+                statusLabel = statusLabel,
+                updateUI = ::updateUI
+            )
         }
     }
 
@@ -205,7 +232,7 @@ class GUIKotlinApp : Application()  {
         Platform.runLater(runnable)
     }
 
-    private fun highlightCurrentLine() {
+    public fun highlightCurrentLine() {
         val currentParagraph = scriptArea.currentParagraph
 
         for (i in 0 until scriptArea.paragraphs.size) {

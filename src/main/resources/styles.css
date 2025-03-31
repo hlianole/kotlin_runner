@@ -33,6 +33,26 @@
     -fx-background-color: #3d8b40;
 }
 
+.stop-button {
+    -fx-font-family: "Montserrat Regular";
+    -fx-font-size: 16px;
+    -fx-padding: 5px 15px;
+    -fx-background-color: #d32222;
+    -fx-text-fill: white;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 3, 0.0, 0, 1);
+}
+
+.stop-button:hover {
+    -fx-background-color: #c52424;
+    -fx-cursor: hand;
+}
+
+.stop-button:pressed {
+    -fx-background-color: #a51d1d;
+}
+
 /* Status label */
 .status-label {
     -fx-font-family: "Montserrat Regular";
@@ -118,17 +138,17 @@
 
 .keyword1 {
     -fx-font-family: "Montserrat SemiBold";
-    -fx-fill: #0022c5;
+    -fx-fill: #0027e6;
 }
 
 .keyword2 {
     -fx-font-family: "Montserrat SemiBold";
-    -fx-fill: #7700a6;
+    -fx-fill: #9e01df;
 }
 
 .keyword3 {
     -fx-font-family: "Montserrat SemiBold";
-    -fx-fill: #bc1212;
+    -fx-fill: #e8d404;
 }
 
 .operator {
