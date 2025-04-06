@@ -17,7 +17,6 @@ dependencies {
     implementation("org.openjfx:javafx-controls:20.0.1")
     implementation("org.openjfx:javafx-graphics:17.0.2")
     implementation("org.fxmisc.richtext:richtextfx:0.11.4")
-    implementation("org.jetbrains.kotlin:kotlin-scripting-jsr223:1.9.0")
 
     testImplementation(kotlin("test"))
 }
