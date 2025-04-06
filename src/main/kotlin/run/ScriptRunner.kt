@@ -1,10 +1,7 @@
 package com.hlianole.guikotlin.run
 
 import javafx.scene.control.Label
-import javafx.scene.control.TextArea
 import javafx.scene.input.MouseEvent
-import javafx.scene.text.Text
-import javafx.scene.text.TextFlow
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.StyleClassedTextArea
 import java.io.File
