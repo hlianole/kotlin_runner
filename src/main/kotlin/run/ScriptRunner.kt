@@ -2,7 +2,11 @@ package com.hlianole.guikotlin.run
 
 import javafx.scene.control.Label
 import javafx.scene.control.TextArea
+import javafx.scene.input.MouseEvent
+import javafx.scene.text.Text
+import javafx.scene.text.TextFlow
 import org.fxmisc.richtext.CodeArea
+import org.fxmisc.richtext.StyleClassedTextArea
 import java.io.File
 import java.util.concurrent.CompletableFuture
 
@@ -10,16 +14,22 @@ class ScriptRunner {
     private var cache = mutableMapOf<String, String>()
     private var lock = Any()
     private var currentProcess : Process? = null
+    private val errorClickHandlers = mutableListOf<Pair<StyleClassedTextArea, (MouseEvent) -> Unit>>()
 
     fun run(
         scriptArea: CodeArea,
-        outputArea: TextArea,
+        outputArea: StyleClassedTextArea,
         statusLabel: Label,
         isUsingCache: Boolean,
         updateUI: (runnable: () -> Unit) -> Unit
     ) {
         if (currentProcess != null) {
             return
+        }
+
+        clearErrorHandlers()
+        updateUI {
+            outputArea.clearStyle(0, outputArea.length)
         }
 
         checkKotlinCompiler(
@@ -41,7 +51,7 @@ class ScriptRunner {
                         updateUI {
                             statusLabel.text = "From cache"
                             outputArea.clear()
-                            outputArea.text = cached
+                            appendOutput(outputArea, scriptArea, cached)
                         }
                         return
                     }
@@ -79,8 +89,9 @@ class ScriptRunner {
 
                 while (reader?.readLine().also { line = it } != null) {
                     output.append(line).append('\n')
+                    val lineNotNull = line.orEmpty()
                     updateUI {
-                        outputArea.text = output.toString()
+                        appendOutput(outputArea, scriptArea, lineNotNull)
                     }
                 }
 
@@ -104,7 +115,7 @@ class ScriptRunner {
             } catch (e: Exception) {
                 updateUI {
                     statusLabel.text = "Error"
-                    outputArea.text = e.toString()
+                    outputArea.appendText(e.message)
                 }
             }
         }
@@ -144,14 +155,14 @@ class ScriptRunner {
     }
 
     private fun checkKotlinCompiler(
-        outputArea: TextArea,
+        outputArea: StyleClassedTextArea,
         statusLabel: Label,
         updateUI: (runnable: () -> Unit) -> Unit
     ) {
         if (!isKotlinCompilerInstalled()) {
             updateUI {
-                outputArea.text = "Error: Kotlin compiler not installed.\n" +
-                        "Please, install Kotlin Compiler and add it to PATH."
+                outputArea.appendText("Error: Kotlin compiler not installed.\n" +
+                        "Please, install Kotlin Compiler and add it to PATH.")
                 statusLabel.text = "Error"
             }
             return
@@ -179,5 +190,52 @@ class ScriptRunner {
         val millis = milliseconds % 1000
         val seconds = milliseconds / 1000
         return "$seconds s, $millis m"
+    }
+
+    private fun clearErrorHandlers() {
+        errorClickHandlers.forEach { (area, handler) ->
+            area.removeEventHandler(MouseEvent.MOUSE_CLICKED, handler)
+        }
+        errorClickHandlers.clear()
+    }
+
+    private fun appendOutput(
+        outputArea: StyleClassedTextArea,
+        scriptArea: CodeArea,
+        text: String
+    ) {
+        val regex = Regex("""^.*:(\d+):(\d+):.*""")
+        val lines = text.split("\n")
+
+        lines.forEach { currentLine ->
+            val currentLineStrOffset = outputArea.length
+            outputArea.appendText(currentLine + "\n")
+
+            val match = regex.find(currentLine)
+            if (match != null) {
+                val (lineStr, colStr) = match.destructured
+                val line = lineStr.toIntOrNull()?.minus(1) ?: return@forEach
+                val column = colStr.toIntOrNull()?.minus(1) ?: return@forEach
+
+                val relativeStart = match.range.first
+                val relativeEnd = match.range.last + 1
+                val absoluteStart = currentLineStrOffset + relativeStart
+                val absoluteEnd = currentLineStrOffset + relativeEnd
+
+                outputArea.setStyleClass(absoluteStart, absoluteEnd, "error-link")
+
+                val handler = { _: MouseEvent ->
+                    val caretPos = outputArea.caretPosition
+                    if (caretPos in absoluteStart..absoluteEnd) {
+                        scriptArea.moveTo(line, column)
+                        scriptArea.requestFocus()
+                    }
+                }
+
+                errorClickHandlers.add(Pair(outputArea, handler))
+
+                outputArea.addEventHandler(MouseEvent.MOUSE_CLICKED, handler)
+            }
+        }
     }
 }

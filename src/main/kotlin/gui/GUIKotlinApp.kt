@@ -14,14 +14,16 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.text.Font
+import javafx.scene.text.TextFlow
 import javafx.stage.Stage
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.LineNumberFactory
+import org.fxmisc.richtext.StyleClassedTextArea
 import java.util.concurrent.CompletableFuture
 
 class GUIKotlinApp : Application()  {
     private lateinit var scriptArea : CodeArea
-    private lateinit var outputArea: TextArea
+    private lateinit var outputArea: StyleClassedTextArea
     private lateinit var statusLabel : Label
     private lateinit var runButton : Button
     private lateinit var stopButton : Button
@@ -99,19 +101,12 @@ class GUIKotlinApp : Application()  {
 
         keywordsHighlighter = KeywordsHighlighter(scriptArea = scriptArea)
 
-        outputArea = TextArea().apply {
+        outputArea = StyleClassedTextArea().apply {
             styleClass.add("output-area")
             VBox.setVgrow(this, Priority.ALWAYS)
-
-            addEventHandler(KeyEvent.KEY_PRESSED) { event ->
-                if (event.code == KeyCode.ENTER && isScriptRunning) {
-                    event.consume()
-                    Platform.runLater {
-                        text += '\n'
-                        positionCaret(length)
-                    }
-                }
-            }
+            isFocusTraversable = false
+            isEditable = false
+            isWrapText = true
         }
 
         statusLabel = Label("Ready").apply {
@@ -232,7 +227,7 @@ class GUIKotlinApp : Application()  {
         Platform.runLater(runnable)
     }
 
-    public fun highlightCurrentLine() {
+    private fun highlightCurrentLine() {
         val currentParagraph = scriptArea.currentParagraph
 
         for (i in 0 until scriptArea.paragraphs.size) {

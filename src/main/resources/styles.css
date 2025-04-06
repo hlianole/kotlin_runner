@@ -1,18 +1,15 @@
-/* Base styles */
 .root {
     -fx-base: #f0f0f0;
     -fx-background-color: #e8e8e8;
     -fx-font-family: "Montserrat SemiBold";
 }
 
-/* Headers */
 .header-label {
     -fx-font-family: "Montserrat Regular";
     -fx-font-size: 18px;
     -fx-text-fill: #333333;
 }
 
-/* Run button */
 .run-button {
     -fx-font-family: "Montserrat Regular";
     -fx-font-size: 16px;
@@ -53,14 +50,12 @@
     -fx-background-color: #a51d1d;
 }
 
-/* Status label */
 .status-label {
     -fx-font-family: "Montserrat Regular";
     -fx-font-size: 16px;
     -fx-text-fill: #333333;
 }
 
-/* Script area (input) */
 .script-area {
     -fx-font-family: "Montserrat SemiBold";
     -fx-font-size: 16px;
@@ -95,9 +90,9 @@
     -fx-background-color: #f3f8f3;
 }
 
-/* Output area (darker) */
 .output-area {
     -fx-font-family: "Montserrat SemiBold";
+    -fx-background-color: #ffffff;
     -fx-font-size: 16px;
     -fx-text-fill: #000000;
     -fx-border-color: #4CAF50;
@@ -105,7 +100,12 @@
     -fx-border-radius: 4px;
 }
 
-/* Split pane */
+.error-link {
+    -fx-fill: #d9534f;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
 .split-pane {
     -fx-background-color: transparent;
     -fx-padding: 0;
@@ -116,7 +116,6 @@
     -fx-padding: 1px;
 }
 
-/* Scrollbars */
 .scroll-bar {
     -fx-background-color: #f0f0f0;
     -fx-background-radius: 0;
