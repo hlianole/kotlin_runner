@@ -15,10 +15,10 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.text.Font
 import javafx.stage.Stage
+import kotlinx.coroutines.*
 import org.fxmisc.richtext.CodeArea
 import org.fxmisc.richtext.LineNumberFactory
 import org.fxmisc.richtext.StyleClassedTextArea
-import java.util.concurrent.CompletableFuture
 
 class GUIKotlinApp : Application()  {
     private lateinit var scriptArea : CodeArea
@@ -30,6 +30,7 @@ class GUIKotlinApp : Application()  {
     private lateinit var keywordsHighlighter: KeywordsHighlighter
     private var isUsingCache = false
     private var scriptRunner = ScriptRunner()
+    private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun start(primaryStage: Stage) {
         Font.loadFont(javaClass.getResourceAsStream("/fonts/montserrat/Montserrat-SemiBold.ttf"), 16.0)
@@ -107,6 +108,14 @@ class GUIKotlinApp : Application()  {
             isWrapText = true
         }
 
+        val scrollPane = ScrollPane(outputArea).apply {
+            fitToWidthProperty().set(true)
+            fitToHeightProperty().set(true)
+            vbarPolicy = ScrollPane.ScrollBarPolicy.AS_NEEDED
+            hbarPolicy = ScrollPane.ScrollBarPolicy.NEVER
+            VBox.setVgrow(this, Priority.ALWAYS)
+        }
+
         statusLabel = Label("Ready").apply {
             styleClass.add("status-label")
         }
@@ -154,7 +163,7 @@ class GUIKotlinApp : Application()  {
 
         outputPanel.children.addAll(
             outputTopBar,
-            outputArea
+            scrollPane
         )
 
         val splitPane = SplitPane(scriptPanel, outputPanel).apply {
@@ -197,11 +206,20 @@ class GUIKotlinApp : Application()  {
         primaryStage.minWidth = 400.0
         primaryStage.minHeight = 300.0
 
+        primaryStage.setOnCloseRequest {
+            scriptRunner.shutdown()
+        }
+
         primaryStage.show()
     }
 
+    override fun stop() {
+        super.stop()
+        coroutineScope.cancel()
+    }
+
     private fun runScript() {
-        CompletableFuture.supplyAsync {
+        coroutineScope.launch {
             scriptRunner.run(
                 scriptArea = scriptArea,
                 outputArea = outputArea,
@@ -213,12 +231,10 @@ class GUIKotlinApp : Application()  {
     }
 
     private fun stopScript() {
-        Platform.runLater {
-            scriptRunner.stop(
-                statusLabel = statusLabel,
-                updateUI = ::updateUI
-            )
-        }
+        scriptRunner.stop(
+            statusLabel = statusLabel,
+            updateUI = ::updateUI
+        )
     }
 
     private fun updateUI(runnable: () -> Unit) {

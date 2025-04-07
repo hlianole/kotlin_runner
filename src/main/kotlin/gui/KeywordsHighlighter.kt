@@ -24,10 +24,9 @@ class KeywordsHighlighter(
     )
 
     private val keyWords3 = setOf(
-        "char", "double", "float",
-        "int", "long", "short",
-        "byte", "String", "Long",
-        "Float", "Double", "Char"
+        "String", "Long",
+        "Float", "Double", "Char",
+        "Int", "Short", "Byte",
     )
 
     private val keywordPattern1 = "\\b(" + keyWords1.joinToString("|") + ")\\b"
