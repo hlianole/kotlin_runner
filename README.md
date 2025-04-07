@@ -18,6 +18,16 @@ In root folder
 ```
 ./gradlew run
 ```
+New window with opened application will appear
+
+## Notes
+*Use caching* is used for remembering output of the same script
+
+It saves output only if script finished with code 0
+
+It saves cache even if it`s turned off
+
+Application checks if Kotlin is installed on user`s PC
 
 ## Dependencies
 - **Kotlin Standard Library**:  
